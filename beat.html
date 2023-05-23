@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Beat Sequencer</title>
+    <script src="https://unpkg.com/tone@14.8.30/build/Tone.js"></script>
+    <style>
+        button {
+            width: 50px;
+            height: 50px;
+        }
+
+        .active {
+            background-color: #00f;
+        }
+    </style>
+</head>
+<body>
+    <div id="sequencer"></div>
+    <button id="start">Start</button>
+
+    <script>
+        const synth = new Tone.Synth().toDestination();
+        const rows = 4;
+        const cols = 4;
+        const notes = ['C5', 'E4', 'G4', 'B4'];
+        const sequencer = document.getElementById('sequencer');
+        const matrix = [];
+        let loop;
+
+        // Create buttons and add them to the matrix
+        for (let y = 0; y < rows; y++) {
+            let row = [];
+            for (let x = 0; x < cols; x++) {
+                let button = document.createElement('button');
+                button.addEventListener('click', () => {
+                    button.classList.toggle('active');
+                    row[x] = button.classList.contains('active') ? 1 : 0;
+                });
+                sequencer.appendChild(button);
+                row.push(0);
+            }
+            matrix.push(row);
+            sequencer.appendChild(document.createElement('br'));
+        }
+
+        document.getElementById('start').addEventListener('click', () => {
+            // Make sure to start the audio context after user interaction
+            if (Tone.context.state !== 'running') {
+                Tone.context.resume();
+            }
+
+            // Create a loop that goes over each column in the matrix and plays the notes
+            loop = new Tone.Loop(time => {
+                for (let y = 0; y < rows; y++) {
+                    for (let x = 0; x < cols; x++) {
+                        if (matrix[y][x] === 1) {
+                            synth.triggerAttackRelease(notes[y], '8n', time);
+                        }
+                    }
+                }
+                // Shift each row to the left
+                for (let y = 0; y < rows; y++) {
+                    let first = matrix[y].shift();
+                    matrix[y].push(first);
+                    let buttons = sequencer.querySelectorAll('button');
+                    buttons[y * cols].classList.toggle('active', !!first);
+                }
+            }, '8n').start();
+
+            Tone.Transport.start();
+        });
+    </script>
+</body>
+</html>

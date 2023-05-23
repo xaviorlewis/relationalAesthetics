@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<select id="scaleSelector">
+  <option value="major">Major</option>
+  <option value="minor">Minor</option>
+  <!-- Add more scale options -->
+</select>
+
+<div id="noteButtons">
+  <!-- Note buttons will be dynamically added here -->
+</div>
+
+<button id="start">Start</button>
+<button id="stop">Stop</button>
+
+<script type="module">
+  const { repl, controls } = await import('https://cdn.skypack.dev/@strudel.cycles/core');
+  const {
+    initAudioOnFirstClick,
+    getAudioContext,
+    webaudioOutput
+  } = await import('https://cdn.skypack.dev/@strudel.cycles/webaudio@0.6.0');
+
+  const { note } = controls;
+
+  initAudioOnFirstClick();
+  const ctx = getAudioContext();
+
+  const { scheduler } = repl({
+    defaultOutput: webaudioOutput,
+    getTime: () => ctx.currentTime
+  });
+
+  const scales = {
+    'major': ["c3", "d3", "e3", "f3", "g3", "a3", "b3"],
+    'minor': ["c3", "d3", "eb3", "f3", "g3", "ab3", "bb3"],
+    // Add more scales as needed
+  };
+
+  function updateNoteButtons(scale) {
+    const noteButtonsDiv = document.getElementById("noteButtons");
+    noteButtonsDiv.innerHTML = ''; // Clear existing buttons
+    scales[scale].forEach(note => {
+      const button = document.createElement('button');
+      button.id = `note-${note}`;
+      button.innerText = note;
+      button.addEventListener('click', () => scheduler.setPattern(controls.note(note).s("triangle")));
+      noteButtonsDiv.appendChild(button);
+    });
+  }
+
+  // Handle scale selection
+  document.getElementById("scaleSelector").addEventListener("change", (event) => {
+    updateNoteButtons(event.target.value);
+  });
+
+  document.getElementById("start").addEventListener("click", () => scheduler.start());
+  document.getElementById("stop").addEventListener("click", () => scheduler.stop());
+
+  // Initialize with the major scale
+  updateNoteButtons('major');
+
+</script>
+
+</body>
+</html>
