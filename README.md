@@ -21,14 +21,9 @@
 
 ## Getting Started
 
-1. Clone this repository.
-2. Navigate to the repository in your terminal.
-3. Run your preferred commands.
-
-   ```bash
-   npm install
-   npm start
-Open the file 'xl.html' in the web browser of your choice
+1. Clone this repository, or download the zip file.
+2. Navigate to the repository in your terminal / Open the zip file.
+3. Open the file 'xl.html' (in the web browser of your choice).
 
 <hr/>
 <div align="center">
